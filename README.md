@@ -189,7 +189,7 @@ Usually this event is used with api responses.
 
 `hello-world.component.html`
 ```html
-<flk-dropdown-list name="countries" [lazy-loading]="true" [service]="this.countriesService" [imageable]="true" (map)="this.mapCountry(e)"/></flk-dropdown-list>
+<flk-dropdown-list name="countries" [lazy-loading]="true" [service]="this.countriesService" [imageable]="true" (map)="return this.mapCountry(e)"/></flk-dropdown-list>
 ```
 
 `hello-world.component.js`
