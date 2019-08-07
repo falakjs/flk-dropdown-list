@@ -1,0 +1,23 @@
+{
+  "name": "flk-dropdown-list",
+  "version": "1.0.18",
+  "description": "Dropdown list for Falak framework",
+  "keywords": [
+    "dropdown",
+    "list",
+    "flk"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "flk-session": "^0.1.4",
+    "pluralize": "^8.0.0"
+  },
+  "author": {
+    "email": "hassanzohdy@gmail.com",
+    "name": "Hasan Zohdy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/falakjs/flk-dropdown-list"
+  }
+}

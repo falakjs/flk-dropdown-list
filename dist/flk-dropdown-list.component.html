@@ -1,0 +1,33 @@
+<div class="dropdown-list {{ this.theme }}-t {{ this.position }}">
+    <label *if="this.label">
+        <span [html]="this.label"></span>
+        <span *if="this.isRequired" class="required">*</span>
+    </label>
+    <div class="select-list">
+        <button type="button" class="heading" (click)="this.toggle()">
+            <img *if="this.imageable && this.currentImage" [src]="this.currentImage" [alt]="this.getHeading()" />
+            <span [html]="this.getHeading()"></span>
+        </button>
+        <input *for="let itemValue of this.getCheckedItems()" [name]="this.name" type="hidden" [value]="itemValue" />
+
+        <ul class="items-list" [class]="{expanded: ! this._closed}">
+            <li *if="this.searchable" class="list-item search-item">
+                <input [placeholder]="this.getPlaceholder()" (ready)="this.searchInput = $el"
+                    autocomplete="NoAutocomplete" (input)="this.searchFor($el.value)" />
+            </li>
+            <li *for="let item, index of this.itemsList" class="list-item"
+                [class]="{disabled: this.stopSelecting == true && ! this.isCheckedItem(item)}">
+                <input [checked]="this.isCheckedItem(item)" (ready)="this.attachForm($el.form)"
+                    (input)="this.validate($el)" (change)="this.changeStateOf($el)" id="item-{{ index + this.id }}"
+                    type="{{ this.getInputType() }}" [value]="item.value" />
+                <label [disabled]="this.stopSelecting == true && ! this.isCheckedItem(item)"
+                    for="item-{{ index + this.id }}">
+                    <span></span>
+                    <img *if="this.imageable" [src]="item.image" [alt]="item.text" />
+                    <i [html]="item.text"></i>
+                </label>
+            </li>
+        </ul>
+    </div>
+    <div *if="this.error" class="{{ this.errorClasses }}" [html]="this.error"></div>
+</div>

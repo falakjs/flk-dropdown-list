@@ -1,0 +1,350 @@
+@mixin checkbox {
+    // $icon-color: #1790b5;
+    // $icon-color: white;
+    $icon-color: green !default;
+    $icon-hover-color: skyblue !default;
+    $icon-background: skyblue;
+    $border-color: #444;
+
+    label {
+        display: inline-block; // to make it easier to click
+        // color: #fff;
+        cursor: pointer;
+        position: relative; // important
+
+        img {
+            width: 50px;
+            height: 50px;
+            margin-right: 0.5rem;
+        }
+
+        // Now we'll create the checkbox object
+        span {
+            display: inline-block;
+            position: relative;
+            background-color: transparent;
+            width: 25px;
+            height: 25px;
+            transform-origin: center;
+            // border: 2px solid $border-color;
+            border: none;
+            border-radius: 50%;
+            vertical-align: middle;
+            margin-right: 5px;
+            transition: background-color 150ms 200ms, transform 350ms cubic-bezier(.78, -1.22, .17, 1.89); // custom ease effect for bouncy animation
+
+            // Now we'll create the "tick" using pseudo elements - those will be basically two lines that will be rotated to form the "tick"
+            &:before {
+                content: "";
+                width: 0px;
+                height: 2px;
+                border-radius: 2px; // so that the tick has nice rounded look
+                background: $icon-hover-color;
+                position: absolute;
+                transform: rotate(45deg);
+                top: 10px; // you'll need to experiment with placement depending on the dimensions you've chosen
+                left: 7px; // you'll need to experiment with placement depending on the dimensions you've chosen
+                transition: width 50ms ease 50ms;
+                transform-origin: 0% 0%;
+            }
+
+            &:after {
+                content: "";
+                width: 0;
+                height: 2px;
+                border-radius: 2px; // so that the tick has nice rounded look
+                background: $icon-hover-color;
+                position: absolute;
+                transform: rotate(305deg);
+                top: 14px; // you'll need to experiment with placement depending on the dimensions you've chosen
+                left: 9px; // you'll need to experiment with placement depending on the dimensions you've chosen
+                transition: width 50ms ease;
+                transform-origin: 0% 0%;
+            }
+        }
+
+        // Time to add some life to it
+        &:hover {
+            span {
+                &:before {
+                    width: 7px;
+                    transition: width 100ms ease;
+                }
+
+                &:after {
+                    width: 12px;
+                    transition: width 150ms ease 100ms;
+                }
+            }
+        }
+
+        &:disabled {
+            cursor: not-allowed;
+        }
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+        display: none; // hide the system checkbox
+
+        // Let's add some effects after the checkbox is checked
+        &:checked {
+            +label {
+                span {
+                    // background-color: $icon-background;
+                    background-color: transparent;
+                    transform: scale(1.25); // enlarge the box
+
+                    &:after {
+                        width: 10px;
+                        background: $icon-color;
+                        transition: width 150ms ease 100ms; // enlarge the tick
+                    }
+
+                    &:before {
+                        width: 5px;
+                        background: $icon-color;
+                        transition: width 150ms ease 100ms; // enlarge the tick
+                    }
+                }
+
+                &:hover {
+
+                    // copy the states for onMouseOver to avoid flickering
+                    span {
+                        // background-color: $icon-background;
+                        background-color: transparent;
+                        transform: scale(1.25); // enlarge the box
+
+                        &:after {
+                            width: 10px;
+                            background: $icon-color;
+                            transition: width 150ms ease 100ms; // enlarge the tick
+                        }
+
+                        &:before {
+                            width: 5px;
+                            background: $icon-color;
+                            transition: width 150ms ease 100ms; // enlarge the tick
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@mixin theme($theme-options) {
+    &.#{map-get($theme-options, name)}-t { // -t i.e white-t >> white-theme
+        color: map-get-deep($theme-options, color);        
+        .heading {
+            color: inherit !important;
+            background: map-get-deep($theme-options, heading, background);
+            
+            @include box-shadow(0px 0px 2px 1px map-get-deep($theme-options, heading, box-shadow));
+        }
+
+        .select-list {
+            .items-list {
+                background: map-get-deep($theme-options, items-list, background);
+
+                .list-item {
+                    border: 1px solid map-get-deep($theme-options, items-list, list-item, border-color);
+                    border-bottom: none !important;
+                    &:last-child {
+                        border-bottom: 1px solid map-get-deep($theme-options, items-list, list-item, border-color) !important;
+                    }
+                    &.search-item {
+                        border: none !important;
+                        input {
+                            color: map-get-deep($theme-options, items-list, search-input, color);
+                            border: 1px solid map-get-deep($theme-options, items-list, search-input, border-color);
+                            background: map-get-deep($theme-options, items-list, search-input, background);
+
+                            &:focus {
+                                border-color: map-get-deep($theme-options, items-list, search-input, focus, border-color);
+                            }
+                        }
+                    }
+
+                }
+
+                // &.expanded {
+                //     @include box-shadow(0px 0px 2px 1px map-get-deep($theme-options, expanded, box-shadow));
+                //     > &.first-child {
+                //         border: 1px solid map-get-deep($theme-options, expanded, border-color);
+                //     }
+                // }
+            }
+        }
+    }
+}
+
+@mixin white-theme {
+    @include theme((
+        name: white,
+        color: #000,
+        heading: (
+            background: #f2f2f2,
+            box-shadow: #ccc,
+        ),
+        items-list: (
+            background: #FFF,
+            list-item: (
+                border-color: #eee,
+            ),
+            search-input: (
+                color: #000,
+                border-color: #9fdee6,
+                background: #e8f0fe,
+                focus: (
+                    border-color: #42c3d4,
+                ),
+            ),
+        ),
+        expanded: (
+            box-shadow: #eee,
+            border-color: #f3f3f3,
+        ),
+    ));
+}
+
+@mixin dark-theme {
+    $bg-color: #000;
+    @include theme((
+        name: dark,
+        color: #FFF,
+        heading: (
+            background: $bg-color,
+            box-shadow: #ccc,
+        ),
+        items-list: (
+            background: $bg-color,
+            list-item: (
+                border-color: #eee,
+            ),
+            search-input: (
+                color: #FFF,
+                border-color: #9fdee6,
+                background: $bg-color,
+                focus: (
+                    border-color: #42c3d4,
+                ),
+            ),
+        ),
+        expanded: (
+            box-shadow: #eee,
+            border-color: #f3f3f3,
+        ),
+    ));
+}
+
+
+@mixin dark-transparent-theme {
+    $bg-color: rgba(0, 0, 0, 0.6);
+    @include theme((
+        name: dark-transparent,
+        color: #FFF,
+        heading: (
+            background: $bg-color,
+            box-shadow: #ccc,
+        ),
+        items-list: (
+            background: rgba(0, 0, 0, 0.8),
+            list-item: (
+                border-color: #999,
+            ),
+            search-input: (
+                color: #FFF,
+                border-color: transparent,
+                background: $bg-color,
+                focus: (
+                    border-color: skyblue,
+                ),
+            ),
+        ),
+        expanded: (
+            box-shadow: #eee,
+            border-color: #f3f3f3,
+        ),
+    ));
+}
+
+.dropdown-list {
+    @include white-theme();
+    @include dark-theme();
+    @include dark-transparent-theme();
+
+    // display dropdown top instead of bottom flow
+    &.top {
+        .select-list {
+            .items-list {
+                bottom: 100%;
+            }
+        }
+    }
+
+    .select-list {
+        position: relative;
+
+        .heading {
+            width: 100%;
+            cursor: pointer;
+            padding: 1rem;
+            height: 40px;
+            line-height: 7px;
+            font-size: 1.6rem;
+            font-weight: bold;
+
+            img {
+                width: 20px;
+                height: 20px;
+                margin-right: 0.5rem;
+            }
+        }
+
+        .items-list {
+            position: absolute;
+            width: 100%;
+            z-index: 1000;
+            max-height: 300px;
+            opacity: 0;
+            visibility: hidden;
+            @include transition(all 0.4s ease);
+
+            .list-item {
+                list-style: none;
+                padding: 0.7rem;
+                border: 1px solid;
+
+                label {
+                    margin: 0 0.5rem;
+                    cursor: pointer;
+                }
+
+                @include checkbox();
+
+                &:last-child {
+                    margin-bottom: 0;
+                    border-bottom: 1px solid;
+                }
+
+                &.search-item {
+                    padding: 0;
+                    margin-bottom: 1.5rem;
+
+                    input {
+                        width: 100%;
+                        padding: 0.5rem 1rem;
+                    }
+                }
+            }
+
+            &.expanded {
+                overflow: auto;
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+    }
+}
