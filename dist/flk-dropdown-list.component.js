@@ -114,34 +114,8 @@ class DropDownList {
         };
 
         if (!this.lazyLoading) {
-            this.items = this.inputs.getProp('items');
-
-            if (Is.empty(this.items) && !Is.array(this.items)) {
-                let type = Is.null(this.items) ? 'null' : typeof this.items;
-                throw new Error(`Invalid "${type}" type for passed [items] value, make sure to pass a valid array of items.`);
-            }
-            // if the passed items are key/value pairs of object
-            // then we will convert it to array.
-            if (!Is.array(this.items) && Is.plainObject(this.items)) {
-                let arrayedItems = [];
-
-                let reverseKeys = this.inputs.getProp('reverseKeys', false);
-
-                for (let key in this.items) {
-                    let text = reverseKeys ? this.items[key] : key,
-                        value = reverseKeys ? key : this.items[key];
-
-                    arrayedItems.push({
-                        text,
-                        value,
-                    });
-                }
-
-                this.items = arrayedItems;
-            }
-            this.originalItems = Array.clone(this.items).map(this.mapRecordings);
-            this.prepareItems(this.originalItems);
-            return;
+            let items = this.inputs.getProp('items');
+            return this.updateItems(items);
         }
 
         this.service = this.inputs.getProp('service');
