@@ -102,22 +102,12 @@ class DropDownList {
             return { text, value, image };
         });
 
-        const prepareItems = items => {
-            this.itemsList = Array.clone(items).map(this.mapRecordings);
-
-            this.itemsList.forEach(item => {
-                this.checkedItems[String(item.value)] = this.multiple ? this.currentValue.includes(item.value) : this.currentValue == item.value;
-            });
-
-            this.prepareItemsList(this.itemsList);
-        };
-
         const loadFromService = () => {
             this.serviceMethod = this.inputs.getProp('serviceMethod', Config.get('form.dropdown.serviceMethod', 'list'));
             this.service[serviceMethod]().then(records => {
                 this.originalItems = Array.clone(records).map(this.mapRecordings);
                 this.session.set(this.cacheKey, this.originalItems);
-                prepareItems(this.originalItems);
+                this.prepareItems(this.originalItems);
 
                 this.isLoadingItems = false;
             });
@@ -150,7 +140,7 @@ class DropDownList {
                 this.items = arrayedItems;
             }
             this.originalItems = Array.clone(this.items).map(this.mapRecordings);
-            prepareItems(this.originalItems);
+            this.prepareItems(this.originalItems);
             return;
         }
 
@@ -162,7 +152,7 @@ class DropDownList {
 
             if (this.session.has(this.cacheKey)) {
                 this.originalItems = this.session.get(this.cacheKey);
-                prepareItems(this.originalItems);
+                this.prepareItems(this.originalItems);
                 this.isLoadingItems = false;
                 loadFromService(); // to make sure it is updated
             } else {
@@ -174,7 +164,63 @@ class DropDownList {
 
         // TODO: // endpoint, http requests
     }
+    
+    /**
+     * Prepare items list
+     * 
+     * @param Array items 
+     */
+    prepareItems(items) {
+        this.itemsList = Array.clone(items).map(this.mapRecordings);
 
+        this.itemsList.forEach(item => {
+            this.checkedItems[String(item.value)] = this.multiple ? this.currentValue.includes(item.value) : this.currentValue == item.value;
+        });
+
+        this.prepareItemsList(this.itemsList);
+    }
+
+    /**
+     * Update items list
+     * 
+     * @param {any} items 
+     */
+    updateItems(items) {
+        this.items = items;
+
+        if (Is.empty(this.items) && !Is.array(this.items)) {
+            let type = Is.null(this.items) ? 'null' : typeof this.items;
+            throw new Error(`Invalid "${type}" type for passed [items] value, make sure to pass a valid array of items.`);
+        }
+
+        // if the passed items are key/value pairs of object
+        // then we will convert it to array.
+        if (!Is.array(this.items) && Is.plainObject(this.items)) {
+            let arrayedItems = [];
+
+            let reverseKeys = this.inputs.getProp('reverseKeys', false);
+
+            for (let key in this.items) {
+                let text = reverseKeys ? this.items[key] : key,
+                    value = reverseKeys ? key : this.items[key];
+
+                arrayedItems.push({
+                    text,
+                    value,
+                });
+            }
+
+            this.items = arrayedItems;
+        }
+        this.originalItems = Array.clone(this.items).map(this.mapRecordings);
+        this.prepareItems(this.originalItems);
+    }
+
+    /**
+     * Get checked items list
+     * 
+     * @returns Array
+     */
     getCheckedItems() {
         return Is.array(this.currentValue) ? this.currentValue : [this.currentValue];
     }
