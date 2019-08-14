@@ -53,14 +53,14 @@ class DropDownList {
         this.placeholder = this.inputs.getOption('placeholder');
 
         this.heading = this.inputs.getOption('heading');
-        
+
         this.onSelectEvent = this.inputs.getEvent('select');
         this.limit = this.inputs.getProp('limit', Config.get('form.dropdown.limit', 0));
         this.theme = this.inputs.getOption('theme', Config.get('form.dropdown.theme', this.defaultTheme));
-        
+
         this.imageable = this.inputs.getProp('imageable', false);
         this.except = this.inputs.getProp('except');
-        
+
         this.position = this.inputs.getOption('position', 'bottom'); // dropdown list position
 
         if (this.multiple) {
@@ -138,7 +138,7 @@ class DropDownList {
 
         // TODO: // endpoint, http requests
     }
-    
+
     /**
      * Prepare items list
      * 
@@ -238,7 +238,7 @@ class DropDownList {
     prepareItemsList(itemsList) {
         if (this.except) {
             let except = (Is.array(this.except) ? this.except : [this.except]).map(value => String(value));
-            itemsList = itemsList.filter(item => ! except.includes(item.value));
+            itemsList = itemsList.filter(item => !except.includes(item.value));
         }
 
         itemsList = this.orderItems(itemsList);
@@ -380,9 +380,9 @@ class DropDownList {
             }
         } else {
             if (input.checked) {
-                this.currentValue = Array.pushOnce(this.currentValue, input.value);
+                this.appendSelected(input.value, false);
             } else {
-                this.currentValue = Array.remove(this.currentValue, input.value);
+                this.removeSelected(input.value, false);
             }
         }
 
@@ -408,6 +408,41 @@ class DropDownList {
 
         this.detectChanges(); // because this.checkedItems is not in the html file
     }
+
+    /**
+     * Append selected value
+     * Works only with `[multiple]` with true
+     * 
+     * @param {any} value 
+     */
+    appendSelected(value, detectChanges = true) {
+        value = String(value);
+        this.currentValue = Array.pushOnce(this.currentValue, value);
+
+        if (detectChanges) {
+            this.checkedItems[value] = true;
+
+            this.detectChanges();
+        }
+    }
+
+    /**
+     * Remove selected value
+     * Works only with `[multiple]` with true
+     * 
+     * @param {any} value 
+     */
+    removeSelected(value, detectChanges = true) {
+        value = String(value);
+        this.currentValue = Array.remove(this.currentValue, value);
+
+        if (detectChanges) {
+            this.checkedItems[value] = false;
+
+            this.detectChanges();
+        }
+    }
+
 
     /**
      * Set current image
