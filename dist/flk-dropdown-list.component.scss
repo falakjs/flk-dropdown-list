@@ -307,9 +307,9 @@
             position: absolute;
             width: 100%;
             z-index: 1000;
+            padding: 0;
             max-height: 300px;
             opacity: 0;
-            padding: 0;
             visibility: hidden;
             @include transition(all 0.4s ease);
 

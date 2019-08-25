@@ -37,7 +37,7 @@ class DropDownList {
         this._closed = true;
         this.currentImage = null;
 
-        this.availableThemes = ['white', 'white-transparent', 'dark', 'dark-transparent'];
+        this.availableThemes = ['white', 'white-transparent', 'dark', 'dark-transparent', 'custom'];
     }
 
     /**
@@ -46,6 +46,7 @@ class DropDownList {
      */
     init() {
         // input options
+        this.addtionalClasses = this.inputs.getOption('class', ''); 
         this.label = this.inputs.getOption('label');
         this.name = this.inputs.getOption('name', '');
         this.isRequired = !Is.null(this.inputs.getAttr('required')) || this.inputs.getProp('required');
