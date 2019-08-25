@@ -1,6 +1,6 @@
 {
   "name": "flk-dropdown-list",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "description": "Dropdown list for Falak framework",
   "main": "dist/flk-dropdown-list.component.js",
   "keywords": [
