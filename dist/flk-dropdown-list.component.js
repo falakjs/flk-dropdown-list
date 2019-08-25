@@ -105,7 +105,7 @@ class DropDownList {
 
         const loadFromService = () => {
             this.serviceMethod = this.inputs.getProp('serviceMethod', Config.get('form.dropdown.serviceMethod', 'list'));
-            this.service[serviceMethod]().then(records => {
+            this.service[this.serviceMethod]().then(records => {
                 this.originalItems = Array.clone(records).map(this.mapRecordings);
                 this.session.set(this.cacheKey, this.originalItems);
                 this.prepareItems(this.originalItems);
