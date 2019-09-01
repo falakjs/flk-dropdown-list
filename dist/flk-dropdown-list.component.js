@@ -46,6 +46,7 @@ class DropDownList {
      */
     init() {
         // input options
+        this.selectedItems = [];
         this.addtionalClasses = this.inputs.getOption('class', '');
         this.label = this.inputs.getOption('label');
         this.name = this.inputs.getOption('name', '');
@@ -103,39 +104,31 @@ class DropDownList {
             return { text, value, image };
         });
 
-        const loadFromService = () => {
-            this.serviceMethod = this.inputs.getProp('serviceMethod', Config.get('form.dropdown.serviceMethod', 'list'));
-            this.service[this.serviceMethod]().then(response => {
-                this.originalItems = Array.clone(response.records).map(this.mapRecordings);
-                this.session.set(this.cacheKey, this.originalItems);
-                this.prepareItems(this.originalItems);
-
-                this.isLoadingItems = false;
-            });
-        };
-
         if (!this.lazyLoading) {
             let items = this.inputs.getProp('items');
             return this.updateItems(items);
         }
 
+        let request;
         this.service = this.inputs.getProp('service');
+        this.callMethod = this.inputs.getProp('call');
 
-        if (this.service && this.service.list) {
-            this.isLoadingItems = true;
-            this.cacheKey = 'dl-' + this.service.constructor.name.slice(0, 3).toLowerCase(); // dropdown list - servive name
-
-            if (this.session.has(this.cacheKey)) {
-                this.originalItems = this.session.get(this.cacheKey);
-                this.prepareItems(this.originalItems);
-                this.isLoadingItems = false;
-                loadFromService(); // to make sure it is updated
-            } else {
-                loadFromService();
-            }
-
-            return;
+        this.responseKey = this.inputs.getOption('responseKey', Config.get('form.dropdown.responseKey', 'records'));
+            
+        if (this.service) {
+            this.serviceMethod = this.inputs.getOption('serviceMethod', Config.get('form.dropdown.serviceMethod', 'list'));
+            request = this.service[this.serviceMethod].bind(this.service);        
+        } else if (this.callMethod) {
+            request = this.callMethod;
         }
+
+        request().then(response => {
+            this.originalItems = Array.clone(response[this.responseKey]).map(this.mapRecordings);
+            this.session.set(this.cacheKey, this.originalItems);
+            this.prepareItems(this.originalItems);
+
+            this.isLoadingItems = false;
+        });
 
         // TODO: // endpoint, http requests
     }
@@ -365,7 +358,7 @@ class DropDownList {
      * @param  HTMLElement input
      * @returns void
      */
-    changeStateOf(input) {
+    changeStateOf(input, item) {
         this.checkedItems[input.value] = input.checked;
         if (!this.multiple && input.checked) {
             for (let value in this.checkedItems) {
@@ -398,7 +391,13 @@ class DropDownList {
         }
 
         if (this.onSelectEvent) {
-            this.onSelectEvent(this.currentValue);
+            if (! this.multiple) {
+                this.selectedItems = item;
+            } else {
+                this.selectedItems.push(item);
+            }
+            
+            this.onSelectEvent(this.selectedItems);
         }
 
         if (this.closeOnSelect) {

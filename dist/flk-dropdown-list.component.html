@@ -18,7 +18,7 @@
             <li *for="let item, index of this.itemsList" class="list-item"
                 [class]="{disabled: this.stopSelecting == true && ! this.isCheckedItem(item)}">
                 <input [checked]="this.isCheckedItem(item)" (ready)="this.attachForm($el.form)"
-                    (input)="this.validate($el)" (change)="this.changeStateOf($el)" id="item-{{ index + this.id }}"
+                    (input)="this.validate($el)" (change)="this.changeStateOf($el, item)" id="item-{{ index + this.id }}"
                     type="{{ this.getInputType() }}" [value]="item.value" />
                 <label [disabled]="this.stopSelecting == true && ! this.isCheckedItem(item)"
                     for="item-{{ index + this.id }}">
