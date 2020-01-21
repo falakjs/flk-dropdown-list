@@ -63,6 +63,8 @@ class DropDownList {
         this.imageable = this.inputs.getProp('imageable', false);
         this.except = this.inputs.getProp('except');
 
+        this.icon = this.inputs.getOption('icon');
+
         this.position = this.inputs.getOption('position', 'bottom'); // dropdown list position
 
         if (this.multiple) {
