@@ -5,6 +5,7 @@
     </label>
     <div class="select-list">
         <button type="button" class="heading" (click)="this.toggle()">
+            <fa *if="this.icon" [icon]="this.icon"></fa>
             <img *if="this.imageable && this.currentImage" [src]="this.currentImage" [alt]="this.getHeading()" />
             <span [html]="this.getHeading()"></span>
         </button>

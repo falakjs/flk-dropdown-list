@@ -47,23 +47,25 @@ class DropDownList {
     init() {
         // input options
         this.selectedItems = [];
-        this.addtionalClasses = this.inputs.getOption('class', '');
-        this.label = this.inputs.getOption('label');
-        this.name = this.inputs.getOption('name', '');
+        this.addtionalClasses = this.prop('class', '');
+        this.label = this.prop('label');
+        this.name = this.prop('name', '');
         this.isRequired = !Is.null(this.inputs.getAttr('required')) || this.inputs.getProp('required');
         let value = this.inputs.getProp('value');
-        this.placeholder = this.inputs.getOption('placeholder');
+        this.placeholder = this.prop('placeholder');
 
-        this.heading = this.inputs.getOption('heading');
+        this.heading = this.prop('heading');
 
         this.onSelectEvent = this.inputs.getEvent('select');
         this.limit = this.inputs.getProp('limit', Config.get('form.dropdown.limit', 0));
-        this.theme = this.inputs.getOption('theme', Config.get('form.dropdown.theme', this.defaultTheme));
+        this.theme = this.prop('theme', Config.get('form.dropdown.theme', this.defaultTheme));
 
         this.imageable = this.inputs.getProp('imageable', false);
         this.except = this.inputs.getProp('except');
 
-        this.position = this.inputs.getOption('position', 'bottom'); // dropdown list position
+        this.icon = this.prop('icon');
+
+        this.position = this.prop('position', 'bottom'); // dropdown list position
 
         if (this.multiple) {
             this.currentValue = Is.array(value) ? value.map(item => {
@@ -79,7 +81,7 @@ class DropDownList {
             throw new Error(`flk-dropdownlist: Invalid theme '${this.theme}', available themes are: ${this.availableThemes.join(', ')}. `);
         }
 
-        let closeOnSelect = this.inputs.getOption('closeOnSelect');
+        let closeOnSelect = this.prop('closeOnSelect');
 
         this.closeOnSelect = Is.boolean(closeOnSelect) ? closeOnSelect : this.multiple === false;
     }
@@ -113,10 +115,10 @@ class DropDownList {
         this.service = this.inputs.getProp('service');
         this.callMethod = this.inputs.getProp('call');
 
-        this.responseKey = this.inputs.getOption('responseKey', Config.get('form.dropdown.responseKey', 'records'));
+        this.responseKey = this.prop('responseKey', Config.get('form.dropdown.responseKey', 'records'));
             
         if (this.service) {
-            this.serviceMethod = this.inputs.getOption('serviceMethod', Config.get('form.dropdown.serviceMethod', 'list'));
+            this.serviceMethod = this.prop('serviceMethod', Config.get('form.dropdown.serviceMethod', 'list'));
             request = this.service[this.serviceMethod].bind(this.service);        
         } else if (this.callMethod) {
             request = this.callMethod;

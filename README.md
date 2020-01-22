@@ -10,7 +10,7 @@ A component to display dropdown lists selections for Falak JS framework.
 `hello-world.component.html`
 
 ```html
-<flk-dropdown-list name="countryId" [value]="this.currentCountry.id" placeholder="Search for country" heading="Country" [items]="this.countriesList"></flk-dropdown-list>
+<flk-dropdown-list name="countryId" [value]="this.currentCountry.id" placeholder="Search for country" heading="Country" icon="city" [items]="this.countriesList"></flk-dropdown-list>
 ```
 
 Basically this component replaces the `select` tag as it offers much much features than the basic tag.
@@ -170,6 +170,12 @@ Set the selected value of the input.
 **name**: `label` | `[label]`
 
 Set the dropdown label.
+
+## icon
+
+**name**: `icon` | `[icon]`
+
+Add label icon beside the input.
 
 # Events
 
