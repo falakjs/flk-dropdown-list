@@ -6,20 +6,35 @@
     $icon-background: skyblue;
     $border-color: #444;
 
+    .main-icon {
+        margin-#{$right}: 0.5rem;
+    }
+
     label {
         display: inline-block; // to make it easier to click
         // color: #fff;
         cursor: pointer;
         position: relative; // important
 
+        .text {
+            text-transform: capitalize;
+            white-space: pre; // sometimes we need to append white space i.e tab indenting
+        }
+
+        &.imagable {
+            .text {
+                width: calc(100% - 35px);
+            }
+        }
+
         img {
-            width: 50px;
-            height: 50px;
+            width: 30px;
+            height: 30px;
             margin-right: 0.5rem;
         }
 
         // Now we'll create the checkbox object
-        span {
+        .checkbox {
             display: inline-block;
             position: relative;
             background-color: transparent;
@@ -63,6 +78,7 @@
             }
         }
 
+
         // Time to add some life to it
         &:hover {
             span {
@@ -93,7 +109,6 @@
                 span {
                     // background-color: $icon-background;
                     background-color: transparent;
-                    transform: scale(1.25); // enlarge the box
 
                     &:after {
                         width: 10px;
@@ -114,7 +129,6 @@
                     span {
                         // background-color: $icon-background;
                         background-color: transparent;
-                        transform: scale(1.25); // enlarge the box
 
                         &:after {
                             width: 10px;
@@ -141,7 +155,8 @@
             color: inherit !important;
             background: map-get-deep($theme-options, heading, background);
             
-            @include box-shadow(0px 0px 2px 1px map-get-deep($theme-options, heading, box-shadow));
+            // @include box-shadow(0px 0px 2px 1px map-get-deep($theme-options, heading, box-shadow));
+            box-shadow: 0px 0px 3px 0px #eee;
         }
 
         .select-list {
@@ -158,7 +173,7 @@
                         border: none !important;
                         input {
                             color: map-get-deep($theme-options, items-list, search-input, color);
-                            border: 1px solid map-get-deep($theme-options, items-list, search-input, border-color);
+                            border: 2px solid map-get-deep($theme-options, items-list, search-input, border-color);
                             background: map-get-deep($theme-options, items-list, search-input, background);
 
                             &:focus {
@@ -185,8 +200,9 @@
         name: white,
         color: #000,
         heading: (
-            background: #f2f2f2,
-            box-shadow: #ccc,
+            background: #FFF,
+            color: #333,
+            border: 1px solid #ddd,                
         ),
         items-list: (
             background: #FFF,
@@ -196,7 +212,7 @@
             search-input: (
                 color: #000,
                 border-color: #9fdee6,
-                background: #e8f0fe,
+                background: #FFF,
                 focus: (
                     border-color: #42c3d4,
                 ),
@@ -275,6 +291,11 @@
     @include dark-theme();
     @include dark-transparent-theme();
 
+    .empty-results {
+        padding-#{$left}: 1rem;
+        padding-bottom: 1rem;
+    }
+
     // display dropdown top instead of bottom flow
     &.top {
         .select-list {
@@ -284,6 +305,12 @@
         }
     }
 
+    .searching {
+        padding-#{$left}: 1rem;
+        padding-bottom: 1rem;
+        font-weight: normal;
+    }
+    
     .select-list {
         position: relative;
 
@@ -295,6 +322,7 @@
             line-height: 7px;
             font-size: 1.6rem;
             font-weight: bold;
+            text-transform: capitalize;
 
             img {
                 width: 20px;
@@ -306,21 +334,30 @@
         .items-list {
             position: absolute;
             width: 100%;
-            z-index: 1000;
+            z-index: -1;
             padding: 0;
             max-height: 300px;
-            opacity: 0;
-            visibility: hidden;
-            @include transition(all 0.4s ease);
+            overflow: hidden;
+            transform: scaleY(0);
+            transform-origin: 100% 0;
+            transition: all 0.5s ease-in-out;
+
+            &.expanded {
+                overflow: auto;
+                z-index: 1000;
+                transform: scaleY(1);
+                transition: all 0.5s cubic-bezier(0.5, 1.8, 0.9, 0.8);
+            }
 
             .list-item {
                 list-style: none;
-                padding: 0.7rem;
                 border: 1px solid;
 
                 label {
+                    padding: 0.7rem;
                     margin: 0 0.5rem;
                     cursor: pointer;
+                    width: calc(100% - 40px);
                 }
 
                 @include checkbox();
@@ -336,15 +373,72 @@
 
                     input {
                         width: 100%;
-                        padding: 0.5rem 1rem;
+                        padding: 0.5rem 1rem;                    
                     }
                 }
             }
+        }
+    }
+}
 
-            &.expanded {
-                overflow: auto;
-                opacity: 1;
-                visibility: visible;
+.dropdown-list {
+    .heading {
+        background: #FFF;
+        color: #333;
+        border: 1px solid #ddd;
+        text-align: #{$left};
+
+        &:focus, & *:focus {
+            outline: none;
+        }
+
+        .arrow {
+            margin-#{$left}: 0.4rem;
+        }
+    }
+
+    &.opened {
+        .heading {
+            // background: #fbfbfb;
+            border-bottom: none; 
+        }
+    }
+
+    .items-list {
+        margin-top: 42px;
+        padding: 0;
+        background: #FFF;
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+
+        .list-item {
+            text-align: left;
+            color: #333;
+            // border-top-color: #bdc3c7 !important;
+            // border-bottom-color: #7f8c8d !important;
+            border: none !important;
+            transition: none;
+            text-align: #{$left};
+
+            &:hover {
+                background: rgba(0, 0, 0, .04);
+                // color: #FFF;
+            }
+
+            &.selected {
+                font-weight: bold;
+            }
+
+            &.search-item {
+                margin-bottom: 0.5rem !important;
+                input {
+                    background: #FFF;
+                    border: 1px solid #f1f1f1;
+
+                    &:focus {
+                        outline: none;
+                        border: 2px solid skyblue;
+                    }
+                }
             }
         }
     }
