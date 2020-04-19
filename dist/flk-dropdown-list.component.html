@@ -9,10 +9,13 @@
             <img *if="this.imageable && this.currentImage" [src]="this.currentImage" [alt]="this.getHeading()" />
             <fa *if="this.icon" [icon]="this.icon + ' main-icon'"></fa>
             <span [trans]="this.getHeading()"></span>
-            <fa *if="this._closed" icon="caret-down arrow"></fa>
-            <fa *else icon="caret-up arrow"></fa>
+            <if condition="this.arrow">
+                <fa *if="this._closed" icon="caret-down arrow"></fa>
+                <fa *else icon="caret-up arrow"></fa>
+            </if>
         </button>
         <input type="hidden" *as="staticInput" />
+
         <input *for="let itemValue of this.getCheckedItems()" [name]="this.name" type="hidden" [value]="itemValue" />
 
         <ul class="items-list" [class]="{expanded: ! this._closed}">
@@ -24,7 +27,10 @@
             <div *elseif="! Is.null(this.itemsList) && Is.empty(this.itemsList)" class="empty-results">
                 <span trans="noResults"></span>
             </div>
-            <li *for="let item, index of this.itemsList" class="list-item"
+            <li *if="this.isLoadingItems" class="list-item" trans="loading"></li>
+            <li *if="this.itemsList" 
+                *for="let item, index of this.itemsList" 
+                class="list-item"
                 [class]="{disabled: this.stopSelecting == true && ! this.isCheckedItem(item), selected: this.isCheckedItem(item)}">
                 <input [checked]="this.isCheckedItem(item)" (ready)="item.input = $el;"
                     (change)="this.changeStateOf($el, item)" id="item-{{ index + this.id }}"

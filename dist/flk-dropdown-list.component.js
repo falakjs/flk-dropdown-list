@@ -10,7 +10,7 @@ class DropDownList {
         this.searchable = true;
         this.multiple = false;
         this.value = null;
-        this.items = null;
+        this.passedItems = [];
         this.placeholder = null;
         this.heading = null;
         this.closeOnSelect = null;
@@ -20,6 +20,7 @@ class DropDownList {
         this.lazyLoading = false;
         this.isLoadingItems = false;
 
+        this.itemsList = null;
         // available events
         this.eventsList = [
             'onselect', // triggered when user selects item
@@ -56,24 +57,25 @@ class DropDownList {
      * Initialize the component
      * This method is triggered before rendering the component
      */
-    init() {
+    init() {        
         this.handler.observe('value', 'items').onChange('value', value => {
             if (Is.array(this.currentValue)) {
                 for (let value of this.currentValue) {
-                    this.checkedItems[value] = false;
+                    this.checkedItems[String(value)] = false;
                 }
             } else {
-                this.checkedItems[this.currentValue] = false;
+                this.checkedItems[String(this.currentValue)] = false;
             }
+
 
             this.updateCurrentValue(value);
 
             if (Is.array(this.currentValue)) {
                 for (let value of this.currentValue) {
-                    this.checkedItems[value] = true;
+                    this.checkedItems[String(value)] = true;
                 }
             } else {
-                this.checkedItems[this.currentValue] = true;
+                this.checkedItems[String(this.currentValue)] = true;
             }
 
             if (this.imageable && !this.multiple) {
@@ -81,8 +83,8 @@ class DropDownList {
             }
 
             this.detectChanges();
-        }).onChange('items', items => {
-            this.updateItems(items);
+        }).onChange('items', async items => {            
+            this.updateItems(await items);
         });
 
         // input options
@@ -90,7 +92,7 @@ class DropDownList {
         this.addtionalClasses = this.prop('class', '');
         this.label = this.prop('label');
 
-        this.multiple = Boolean(this.prop('multiple', false));
+        this.multiple = this.prop('multiple', false);
 
         this.name = this.prop('name', '');
         this.icon = this.prop('icon');
@@ -100,6 +102,8 @@ class DropDownList {
         this.title = this.prop('title');
 
         this.heading = this.prop('heading');
+
+        this.arrow = this.prop('arrow', true);
 
         this.onSelectEvent = this.inputs.getEvent('select');
         this.limit = this.prop('limit', Config.get('form.dropdown.limit', 0));
@@ -113,7 +117,6 @@ class DropDownList {
         this.updateCurrentValue(value);
 
         this.itemsList = null;
-
         this.getItemsList();
 
         if (!this.availableThemes.includes(this.theme)) {
@@ -171,17 +174,18 @@ class DropDownList {
     /**
      * Check if the dropdown items will be loaded from a service, endpoint or an http request 
      */
-    getItemsList() {
+    async getItemsList() {
         this.lazyLoading = this.prop('lazyLoading');
 
+        this.mapRecordings = this.inputs.getEvent('map', this.defaultItemMap.bind(this));
 
         // this will be used when response is returning records and we need to take one ore more sub-records from each single record 
         this.mapManyRecordings = this.event('mapMany', null);
 
-        this.items = this.prop('items');
+        this.passedItems = await this.prop('items');
 
         if (!this.lazyLoading) {
-            let items = this.items;
+            let items = this.passedItems;
             return this.updateItems(items);
         }
 
@@ -216,6 +220,12 @@ class DropDownList {
         }
 
         this.queryParams = this.prop('queryParams', Config.get('form.dropdown.queryParams', {}));
+
+        if (this.remoteSearch && this.currentValue) {
+            this.queryParams.id = this.currentValue;
+        }
+
+        this.isLoadingItems = true;
 
         this.request(this.queryParams).then(response => {
             this.originalItems = Object.get(response, this.responseKey);
@@ -277,14 +287,15 @@ class DropDownList {
      * @param Array items 
      */
     prepareItems(items) {
-        if (this.lazyLoading && !Is.empty(this.items)) {
-            items = this.items.concat(items);
+        if (this.lazyLoading && !Is.empty(this.passedItems)) {
+            items = this.passedItems.concat(items);
         }
 
         this.itemsList = this.map(Array.clone(items));
 
         this.itemsList.forEach(item => {
-            this.checkedItems[String(item.value)] = this.multiple ? this.currentValue.includes(item.value) : this.currentValue == item.value;
+            let value = String(item.value);
+            this.checkedItems[value] = this.multiple ? this.currentValue.includes(value) : this.currentValue == value;
         });
 
         this.prepareItemsList(this.itemsList);
@@ -296,14 +307,12 @@ class DropDownList {
      * @param {any} items 
      */
     async updateItems(items) {
-        this.items = items;
+        this.passedItems = await items;
         this.selectedItems = [];
 
-        if (this.items && this.items.constructor.name == 'Promise') {
-            this.items = await this.items;
-        } else if (Is.empty(this.items)) {
-            if (!Is.array(this.items)) {
-                let type = Is.null(this.items) ? 'null' : typeof this.items;
+        if (Is.empty(this.passedItems)) {
+            if (!Is.array(this.passedItems)) {
+                let type = Is.null(this.passedItems) ? 'null' : typeof this.passedItems;
                 throw new Error(`Invalid "${type}" type for passed [items] value, make sure to pass a valid array of items.`);
             }
         }
@@ -321,13 +330,14 @@ class DropDownList {
 
                 arrayedItems.push({
                     text,
-                    value,
+                    value: String(value),
                 });
             }
-            this.items = arrayedItems;
+
+            this.passedItems = arrayedItems;
         }
 
-        this.originalItems = Array.clone(this.items);
+        this.originalItems = Array.clone(this.passedItems);
         this.prepareItems(this.originalItems);
     }
 
@@ -344,13 +354,13 @@ class DropDownList {
         this.setForm(this.staticInput);
         
         // open the dropdown when focusing on the button using tab key for example
-        window.onkeyup = e => {
+        window.addEventListener('keyup', e => {
             if (! this._closed) return;
             let code = (e.keyCode ? e.keyCode : e.which);
             if (code == 9 && this.headingBtn == document.activeElement) {
                 this.toggle();
             }
-        };
+        });
     }
 
     setForm(input) {
@@ -429,6 +439,11 @@ class DropDownList {
      * @returns void 
      */
     prepareItemsList(itemsList) {
+        itemsList = itemsList.map(item => {
+            item.value = String(item.value);
+            return item;
+        });
+
         if (this.except) {
             let except = (Is.array(this.except) ? this.except : [this.except]).map(value => String(value));
             itemsList = itemsList.filter(item => !except.includes(String(item.value)));
@@ -463,13 +478,14 @@ class DropDownList {
      * @param  {object} item 
      * @returns void 
      */
-    selectItem(item) {        
-        this.checkedItems[item.value] = true;
+    selectItem(item) {     
+        let value = String(item.value);
+        this.checkedItems[value] = true;
 
         if (this.multiple) {
-            this.currentValue.push(item.value);
+            this.currentValue.push(value);
         } else {
-            this.currentValue = item.value;
+            this.currentValue = value;
         }
     }
 
@@ -545,7 +561,7 @@ class DropDownList {
      * returns bool
      */
     isCheckedItem(item) {
-        return this.checkedItems[item.value] === true;
+        return this.checkedItems[String(item.value)] === true;
     }
 
     /**
@@ -554,7 +570,9 @@ class DropDownList {
      * @returns string
      */
     getHeading() {
-        if (this.isLoadingItems) return 'Loading...';
+        if (this.isLoadingItems) return trans('loading');
+
+        if (this.heading === false) return '';
 
         let heading = this.heading || this.placeholder || this.label;
 
@@ -605,7 +623,7 @@ class DropDownList {
             }
         }
 
-        if (Boolean(this.multiple) === false) {
+        if (! this.multiple) {
             this.currentValue = input.value;
             if (this.imageable) {
                 this.setCurrentImage();
@@ -629,7 +647,6 @@ class DropDownList {
 
         if (this.multiple) {
             this.itemsList = this.orderItems(this.itemsList);
-
             this.stopSelecting = this.limit != 0 && this.limit == this.currentValue.length;
         }
 

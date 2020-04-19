@@ -11,7 +11,7 @@
     }
 
     label {
-        display: inline-block; // to make it easier to click
+        display: flex; // to make it easier to click
         // color: #fff;
         cursor: pointer;
         position: relative; // important
@@ -300,7 +300,7 @@
     &.top {
         .select-list {
             .items-list {
-                bottom: 100%;
+                top: calc(100% + 5px);
             }
         }
     }
@@ -340,7 +340,7 @@
             overflow: hidden;
             transform: scaleY(0);
             transform-origin: 100% 0;
-            transition: all 0.5s ease-in-out;
+            transition: all 0.25s ease-in-out;
 
             &.expanded {
                 overflow: auto;
